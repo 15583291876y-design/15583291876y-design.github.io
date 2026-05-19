@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>思维小教练 · 元认知训练营 | DeepSeek智能评判+数据分析</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f0f7ff 0%, #e9f0fa 100%);
+            font-family: 'Segoe UI', 'Noto Sans', system-ui, 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dashboard {
+            max-width: 1100px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .coach-container {
+            width: 100%;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(2px);
+            border-radius: 48px;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1f3a5f 0%, #2b4c7c 100%);
+            padding: 20px 28px;
+            color: white;
+            border-bottom: 3px solid #ffcd7e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .title-area h1 {
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .student-info {
+            background: rgba(255,255,255,0.2);
+            border-radius: 60px;
+            padding: 6px 16px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .student-info button {
+            background: #ffcd7e;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 30px;
+            color: #2c3e66;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .admin-bar {
+            background: #eef2fa;
+            padding: 10px 28px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            border-bottom: 1px solid #dce3ec;
+            flex-wrap: wrap;
+        }
+
+        .admin-bar button {
+            background: #f5f7fc;
+            border: 1px solid #cbd5e1;
+            padding: 6px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .admin-bar button.admin {
+            background: #2c3e66;
+            color: white;
+            border-color: #1f3a5f;
+        }
+
+        .chat-area {
+            height: 460px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #fefdf8;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+            animation: fadeSlideUp 0.2s ease;
+        }
+
+        .message.user {
+            align-self: flex-end;
+        }
+
+        .message.coach {
+            align-self: flex-start;
+        }
+
+        .bubble {
+            padding: 12px 18px;
+            border-radius: 28px;
+            line-height: 1.45;
+            font-size: 0.95rem;
+            word-break: break-word;
+        }
+
+        .coach .bubble {
+            background: #ffffff;
+            border: 1px solid #e2e9f2;
+            border-radius: 20px 20px 20px 8px;
+            color: #1e2f3e;
+        }
+
+        .user .bubble {
+            background: #2b4c7c;
+            color: white;
+            border-radius: 20px 20px 8px 20px;
+        }
+
+        .task-card .bubble {
+            background: #fff7e8;
+            border-left: 5px solid #f7b05e;
+        }
+
+        .answer-card .bubble {
+            background: #e8f3e8;
+            border-left: 5px solid #2e8b57;
+        }
+
+        .input-area {
+            padding: 18px 24px 24px;
+            background: white;
+            border-top: 1px solid #eef2f8;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .input-row input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 1.5px solid #dee4ec;
+            border-radius: 60px;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            border: none;
+            background: #2b4c7c;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background: #e9b35f;
+            color: #2c3e66;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 12px;
+        }
+
+        .info-tip {
+            font-size: 0.7rem;
+            color: #6c7a89;
+            margin-top: 10px;
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 32px;
+            padding: 32px;
+            max-width: 1000px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            text-align: left;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+        }
+
+        .modal-card h3 {
+            margin-bottom: 20px;
+            color: #2b4c7c;
+        }
+
+        .student-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .student-table th, .student-table td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        .student-table th {
+            background: #f0f4fa;
+        }
+
+        .detail-btn {
+            background: #2b4c7c;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+
+        .task-detail-list {
+            margin-top: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+            border-top: 1px solid #ccc;
+        }
+
+        .close-modal {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .admin-export-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+        .loading-dots::after {
+            content: "评判中";
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: "评判中"; }
+            40% { content: "评判中."; }
+            60% { content: "评判中.."; }
+            80%, 100% { content: "评判中..."; }
+        }
+        .ai-score {
+            font-weight: bold;
+            color: #2c5a2e;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <div class="coach-container">
+        <div class="header">
+            <div class="title-area">
+                <h1>🧠 思维小教练 · 小思</h1>
+                <div style="background:#ffcd7e; color:#2c3e66; padding:2px 12px; border-radius:20px; font-size:0.7rem; display:inline-block;">50+任务 · 阅读≥80字 · DeepSeek智能评判</div>
+            </div>
+            <div class="student-info">
+                <span id="studentIdDisplay">未登录</span>
+                <button id="switchStudentBtn">切换学号</button>
+            </div>
+        </div>
+        <div class="admin-bar">
+            <button id="adminPanelBtn" class="admin">🔐 管理员入口</button>
+            <button id="clearCurrentChatBtn">🗑️ 清空对话显示</button>
+        </div>
+        <div class="chat-area" id="chatArea"></div>
+        <div class="input-area">
+            <div class="input-row">
+                <input type="text" id="messageInput" placeholder="写下你的想法 / 回答教练的问题..." autocomplete="off">
+                <button class="btn" id="sendBtn">📨 发送</button>
+            </div>
+            <div class="button-group">
+                <button class="btn-secondary" id="completeTaskBtn">✅ 任务完成 (提交答案)</button>
+            </div>
+            <div class="info-tip">💡 先根据挑战写出解答 → 点击「任务完成」→ 回答元认知提问（AI将智能反馈）→ 任务结束后AI自动评判你的元认知水平并存储分数。</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ======================= DeepSeek 配置 =======================
+    const DEEPSEEK_API_KEY = "sk-2d423e4a02d84a84b6fb5215c7dfabc6";
+    const DEEPSEEK_URL = "https://api.deepseek.com/v1/chat/completions";
+    
+    async function callDeepSeek(messages, temperature = 0.7) {
+        try {
+            const response = await fetch(DEEPSEEK_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${DEEPSEEK_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: "deepseek-chat",
+                    messages: messages,
+                    temperature: temperature,
+                    max_tokens: 800,
+                    stream: false
+                })
+            });
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`API 错误 ${response.status}: ${errText}`);
+            }
+            const data = await response.json();
+            return data.choices[0].message.content;
+        } catch (error) {
+            console.error("DeepSeek调用失败:", error);
+            return null;
+        }
+    }
+    
+    // ======================= 生成50+任务库（阅读理解均≥80字）=======================
+    function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    
+    const readingPassagesLong = [
+        "在中国古代四大发明中，造纸术的发明对人类文明进程产生了深远影响。早在西汉时期，中国就已经出现了植物纤维纸。东汉时期，蔡伦改进了造纸术，利用树皮、麻头、破布、旧渔网等原料制造出轻便且成本低廉的纸张，大大促进了文化的传播与保存。造纸术后来经由阿拉伯世界传入欧洲，为欧洲文艺复兴运动奠定了重要物质基础。",
+        "大熊猫是世界上最珍贵的濒危动物之一，被称为“活化石”。它们主要生活在中国四川、陕西和甘肃的山区竹林中，以竹子为主食，一只成年大熊猫每天需要花费约14个小时进食，吃掉12至38公斤的竹子。由于繁殖率低和栖息地破坏，野生大熊猫数量曾一度锐减。近年来，通过建立自然保护区和人工繁育计划，大熊猫的保护状况有了显著改善，世界自然保护联盟已将其从“濒危”降为“易危”等级。",
+        "青藏高原是世界上海拔最高的高原，平均海拔超过4000米，素有“世界屋脊”和“地球第三极”之称。这里拥有独特的自然景观和生态系统，如雄伟的喜马拉雅山脉、辽阔的羌塘草原以及众多的咸水湖。青藏高原也是长江、黄河、澜沧江等亚洲大江大河的发源地，因此被称为“亚洲水塔”。这里的珍稀动物包括藏羚羊、野牦牛、雪豹等，它们适应了高寒缺氧的极端环境。",
+        "人工智能（AI）技术近年来发展迅猛，正在深刻改变我们的生产生活方式。从智能手机中的语音助手到自动驾驶汽车，从医疗影像诊断到个性化教育推荐，AI的应用场景越来越广泛。机器学习、深度学习等技术的突破使得AI能够处理更加复杂的任务。然而，AI也带来了隐私安全、就业结构变化以及伦理道德等方面的挑战，各国政府和科研机构正在积极制定相应的法律法规和技术标准，以确保AI技术健康有序发展。",
+        "《论语》是儒家学派的经典著作，主要记录了孔子及其弟子的言行，集中体现了孔子的政治主张、伦理思想、道德观念及教育原则。全书共20篇，约1.6万字，语言简练而含义深刻，其中“己所不欲，勿施于人”“学而不思则罔，思而不学则殆”等名句至今仍被广泛引用。两千多年来，《论语》一直是中华民族文化传承的重要载体，对东亚乃至世界文明都产生了深远影响。",
+        "全球气候变化是当今人类面临的最严峻挑战之一。由于化石燃料燃烧和森林砍伐等活动，大气中二氧化碳等温室气体浓度持续上升，导致全球平均温度升高、冰川加速融化、海平面上升以及极端天气事件频发。为了应对气候变化，各国在2015年通过了《巴黎协定》，承诺将本世纪全球气温上升幅度控制在2摄氏度以内，并努力限制在1.5摄氏度以内。实现这一目标需要全球范围内向清洁能源转型。",
+        "书法是中国传统文化的瑰宝，也是一种独特的视觉艺术。书法以汉字为载体，通过笔墨纸砚等工具，运用线条的粗细、浓淡、干湿以及结构的疏密、开合等变化来表达情感和意境。书法主要分为篆、隶、楷、行、草五种字体，每种字体都有其独特的审美特征。练习书法可以培养人的耐心、专注力和审美能力，同时也是修身养性的一种方式。王羲之、颜真卿、柳公权等都是历史上著名的书法大家。",
+        "敦煌莫高窟位于甘肃省敦煌市东南25公里处的鸣沙山东麓断崖上，是世界上现存规模最大、内容最丰富的佛教艺术宝库。莫高窟始建于前秦时期，历经北朝、隋、唐、五代、宋、西夏、元等朝代的连续修建，现存洞窟735个，壁画4.5万平方米，泥质彩塑2415尊。这些壁画和彩塑展现了从公元4世纪到14世纪佛教艺术的发展演变，以及古代丝绸之路上的文化交流与融合，具有极高的历史、艺术和科学价值。",
+        "疫苗的研发是人类医学史上最伟大的成就之一。疫苗通过模拟病原体入侵，刺激人体免疫系统产生特异性抗体和记忆细胞，从而使人体获得对特定传染病的免疫力，而不会真正患病。自1796年爱德华·詹纳发明牛痘疫苗以来，疫苗技术不断进步。通过全球范围的疫苗接种计划，人类成功消灭了天花，并有效控制了脊髓灰质炎、麻疹、破伤风等多种传染病。新冠疫情期间，mRNA疫苗等新型疫苗技术得到快速应用，为控制疫情做出了重要贡献。",
+        "海洋覆盖了地球表面积的约71%，平均深度约3700米，蕴藏着丰富的生物资源和矿产资源。海洋生态系统包括珊瑚礁、红树林、海草床、深海热泉等多种类型，是地球上最大的生态系统。然而，人类活动正对海洋造成严重威胁：塑料污染导致海洋生物误食或缠绕；过度捕捞使许多鱼类资源枯竭；二氧化碳排放导致海洋酸化，影响珊瑚和贝类等钙化生物。保护海洋健康对于维持地球生态平衡和人类可持续发展至关重要。",
+        "郑和下西洋是明代永乐、宣德年间的一场海上远航活动，由三宝太监郑和率领。从1405年到1433年，郑和七次远航，最远到达东非沿岸，访问了亚洲和非洲30多个国家和地区。郑和船队规模庞大，最多时拥有船只200余艘，船员近3万人。这些远航促进了中国与亚非国家的贸易往来和文化交流，展示了明朝的国威和海洋实力。郑和下西洋比哥伦布发现新大陆早了近90年，是古代世界规模最大的航海活动。",
+        "中国古代的长城是人类文明史上最宏伟的军事防御工程之一。长城始建于春秋战国时期，当时各国为互相防御而修筑城墙。秦始皇统一六国后，将各国的长城连接和扩建，形成了“万里长城”。此后，汉、明等朝代又多次修缮和增建。明代长城全长约8850公里，东起辽宁虎山，西至甘肃嘉峪关，经过多个省份。长城不仅具有军事防御功能，还促进了边疆地区的开发和民族融合。1987年，长城被列入世界文化遗产名录。"
+    ];
+    
+    const TASK_POOL = [];
+    
+    // 1. 数学方程类 (12个)
+    for (let i = 1; i <= 12; i++) {
+        const a = rand(2, 5);
+        const b = rand(1, 10);
+        const c = rand(12, 36);
+        const equation = `${a}(x+${b}) = ${c}`;
+        const solution = `x = ${c/a - b}`;
+        TASK_POOL.push({
+            id: `math_eq_${i}`,
+            type: "数学方程",
+            description: `🧮 **数学挑战**：解方程 ${equation}\n📌 **请完成**：写出完整解题步骤，并在每一步后面用括号写下你当时的内心想法。`,
+            correctAnswer: `x = ${solution}`,
+            thinkingProcess: `💡 **思维过程参考**：\n1. 两边同时除以${a}得到 x+${b} = ${c/a}\n2. 移项得 x = ${c/a} - ${b} = ${solution}\n3. 代入原方程检验，结果正确。\n元认知要点：注意分配律和符号。`,
+            metacogQuestions: ["拿到方程时，你第一步想做什么？哪个环节容易粗心？", "计算过程中有没有检查乘除运算？", "解完后你用代入法验证了吗？下次如何提高准确率？"]
+        });
+    }
+    // 2. 阅读理解类 (12个，每条文本≥80字)
+    for (let i = 0; i < 12; i++) {
+        const passage = readingPassagesLong[i % readingPassagesLong.length];
+        TASK_POOL.push({
+            id: `reading_${i+1}`,
+            type: "阅读理解",
+            description: `📖 **阅读挑战**：\n【文本】${passage}\n❓ **任务**：用自己的话概括这段文字的核心信息（至少2点），并写出你在阅读时使用的专注策略（如圈画、默念、提问等）。`,
+            correctAnswer: "概括要点合理即可，参考文本关键信息。",
+            thinkingProcess: "💡 **思维过程参考**：\n1. 快速浏览找出关键词和主题句。\n2. 将长句拆解为短信息块。\n3. 用“谁/什么 + 做了什么 + 结果/意义”结构总结。\n元认知技巧：读完后问自己‘我能否不看原文复述要点？’",
+            metacogQuestions: ["阅读前，你预想过这段文字可能讲什么吗？", "阅读中哪个词语或句子让你停下来思考？你是怎么处理的？", "概括后你如何检查自己的总结是否完整？下次会改进哪里？"]
+        });
+    }
+    // 3. 学习计划类 (8个)
+    const planScenarios = [
+        "期末考试前一周，你需要复习数学、语文、英语三科。请制定一份七天复习计划，每天安排不同重点。",
+        "你有两小时自习时间，需要完成数学卷子（预计40分钟）、英语作文（30分钟）、物理预习（30分钟）和错题整理（20分钟）。请制定时间分配计划。",
+        "准备参加演讲比赛，只剩3天时间。请设计每天的训练重点和反馈方法。",
+        "新学期开始，你想养成每天背20个单词的习惯。请设计一个21天打卡计划，包含监督和奖励机制。",
+        "周末有四个任务：打扫房间（30分钟）、做数学题（45分钟）、阅读名著（1小时）、锻炼身体（30分钟）。请排序并解释理由。",
+        "期中考试后需要分析试卷错题。请制定一个两小时的错题分析流程，包括分类、归因和补救措施。",
+        "小组合作完成一个科学实验报告，分工有资料收集、实验操作、数据分析和撰写结论。请为四人小组设计分工和进度表。",
+        "准备中考体育800米/1000米跑，还有一个月时间。请设计每周三次的训练计划，包括耐力、速度和放松。"
+    ];
+    for (let i = 0; i < 8; i++) {
+        TASK_POOL.push({
+            id: `plan_${i+1}`,
+            type: "学习计划",
+            description: `⏰ **计划挑战**：${planScenarios[i]}\n📌 **请完成**：写出你的计划内容，并说明你将如何监控进度和调整。`,
+            correctAnswer: "合理即可，参考时间管理原则。",
+            thinkingProcess: "💡 **思维过程参考**：\n1. 列出所有任务并预估耗时。\n2. 按优先级排序（紧急重要矩阵）。\n3. 设置时间块和缓冲期。\n4. 每完成一项打钩并记录实际用时。\n元认知关键：定期检查是否拖延并找出原因。",
+            metacogQuestions: ["制定计划前你考虑了哪些制约因素？", "计划执行中如果被打断，你会如何调整？", "完成后如何评估计划的合理性？下次会改进什么？"]
+        });
+    }
+    // 4. 数学几何类 (8个)
+    const geometryProblems = [
+        "一个等腰三角形的底角是顶角的2倍，求三个内角的度数。",
+        "长方形的长比宽多5厘米，周长是50厘米，求长和宽。",
+        "一个圆的半径是5厘米，求它的面积和周长（π取3.14）。",
+        "直角三角形的两条直角边分别是6cm和8cm，求斜边长和面积。",
+        "一个正方体的棱长总和是72厘米，求它的体积和表面积。",
+        "梯形的上底是4cm，下底是10cm，高是6cm，求面积。",
+        "一个扇形的圆心角为60°，半径是9cm，求弧长和面积。",
+        "平行四边形的底是12cm，高是5cm，面积是多少？如果底增加2cm，高不变，面积增加多少？"
+    ];
+    for (let i = 0; i < 8; i++) {
+        TASK_POOL.push({
+            id: `geo_${i+1}`,
+            type: "数学几何",
+            description: `📐 **几何挑战**：${geometryProblems[i]}\n📌 **请完成**：写出解题步骤，并记录你的思路变化。`,
+            correctAnswer: "根据具体问题计算，参考标准答案。",
+            thinkingProcess: "💡 **思维过程参考**：\n1. 画图标注已知条件。\n2. 回忆相关公式（周长、面积、勾股定理等）。\n3. 列方程或直接计算。\n4. 代入检验。\n元认知：检查单位是否统一，答案是否合理。",
+            metacogQuestions: ["读题后你首先想到什么公式或定理？", "计算过程中有没有怀疑自己用错公式？", "完成后你用了什么方法验证结果？"]
+        });
+    }
+    // 5. 记忆策略类 (5个)
+    const memoryItems = [
+        "圆周率前15位：3.141592653589793",
+        "中国历史朝代顺序：夏商周秦汉魏晋南北朝隋唐五代宋元明清",
+        "化学元素周期表前20号：氢氦锂铍硼碳氮氧氟氖钠镁铝硅磷硫氯氩钾钙",
+        "英语不规则动词：begin-began-begun, sing-sang-sung, ring-rang-rung, drink-drank-drunk",
+        "世界四大文明古国及其发源地：古埃及（尼罗河）、古巴比伦（两河流域）、古印度（印度河）、中国（黄河）"
+    ];
+    for (let i = 0; i < 5; i++) {
+        TASK_POOL.push({
+            id: `memory_${i+1}`,
+            type: "记忆策略",
+            description: `🧠 **记忆挑战**：记忆以下内容：${memoryItems[i]}\n📌 **请完成**：使用至少一种记忆策略（如故事法、组块法、谐音法、图像法）记住它，并写出你的记忆方法。`,
+            correctAnswer: "记忆方法合理即可。",
+            thinkingProcess: "💡 **思维过程参考**：\n1. 将长串信息分组（组块法）。\n2. 创造故事或画面将各组串联。\n3. 反复回忆，找出遗忘点强化。\n元认知：记忆后立即测试，隔一段时间再测。",
+            metacogQuestions: ["你选择了哪种策略？为什么觉得它适合？", "记忆过程中有没有容易混淆的部分？你如何区分？", "回忆测试后发现哪里遗忘最多？下次会调整策略吗？"]
+        });
+    }
+    // 6. 逻辑提炼类 (5个)
+    const debateTopics = [
+        "中学生应不应该带手机到学校？请给出你的观点和两个理由。",
+        "是否应该取消期中考试？请支持或反对并陈述逻辑。",
+        "家庭作业对学习是否有必要？请论述。",
+        "网络实名制利大于弊还是弊大于利？请简要分析。",
+        "学校是否应该强制学生穿校服？请说明理由。"
+    ];
+    for (let i = 0; i < 5; i++) {
+        TASK_POOL.push({
+            id: `logic_${i+1}`,
+            type: "逻辑提炼",
+            description: `✍️ **论证挑战**：${debateTopics[i]}\n📌 **请完成**：写出你的观点，并用2-3句话论证，同时描述你组织理由时的思考过程。`,
+            correctAnswer: "开放答案，逻辑清晰即可。",
+            thinkingProcess: "💡 **思维过程参考**：\n1. 明确自己的立场。\n2. 列出可能的支持论据和反方论点。\n3. 选择最有力的2-3个理由，按重要性排序。\n4. 检查是否存在逻辑漏洞（如以偏概全、因果倒置）。\n元认知：问自己‘我的论证能说服别人吗？’",
+            metacogQuestions: ["你如何确定自己的立场？考虑了哪些因素？", "写论证时有没有发现矛盾之处？如何修复？", "如果别人反驳你，你最薄弱的环节是什么？如何加强？"]
+        });
+    }
+    console.log("任务库总数:", TASK_POOL.length);
+    
+    // 全局数据存储
+    let allStudentsData = {};
+    let currentStudentId = null;
+    let currentStudentRecord = null;
+    
+    let currentStage = "TASK_PUBLISHED";
+    let currentTaskObject = null;
+    let currentMetacogQuestions = [];
+    let metacogStepIndex = 0;
+    let latestTaskAnswer = "";
+    let waitingForUserResponse = false;
+    let currentQaLogs = [];
+    let conversationHistory = [];
+    let isProcessing = false;
+    
+    // DOM 元素
+    const chatArea = document.getElementById("chatArea");
+    const messageInput = document.getElementById("messageInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const completeTaskBtn = document.getElementById("completeTaskBtn");
+    const studentIdDisplay = document.getElementById("studentIdDisplay");
+    const switchStudentBtn = document.getElementById("switchStudentBtn");
+    const clearCurrentChatBtn = document.getElementById("clearCurrentChatBtn");
+    const adminPanelBtn = document.getElementById("adminPanelBtn");
+    
+    function saveAllData() { localStorage.setItem("metaCoach_StudentsData_V8", JSON.stringify(allStudentsData)); }
+    function loadAllData() {
+        const raw = localStorage.getItem("metaCoach_StudentsData_V8");
+        if (raw) allStudentsData = JSON.parse(raw);
+        else allStudentsData = {};
+    }
+    function getRandomTask() {
+        const randomIndex = Math.floor(Math.random() * TASK_POOL.length);
+        return { ...TASK_POOL[randomIndex] };
+    }
+    function initStudentRecord(studentId) {
+        if (allStudentsData[studentId]) return allStudentsData[studentId];
+        const firstTask = getRandomTask();
+        const newRecord = {
+            studentId: studentId,
+            createdAt: new Date().toISOString(),
+            tasksCompleted: [],
+            currentTaskId: firstTask.id,
+            currentRoundId: 1,
+        };
+        allStudentsData[studentId] = newRecord;
+        saveAllData();
+        return newRecord;
+    }
+    function getCurrentTaskByRecord(record) {
+        return TASK_POOL.find(t => t.id === record.currentTaskId) || getRandomTask();
+    }
+    
+    // 新增：DeepSeek 评判函数，根据三个元认知问答给出0-10分评分
+    async function evaluateAnswersWithDeepSeek(task, qaLogs) {
+        if (!qaLogs || qaLogs.length < 3) return null;
+        const answers = qaLogs.map((log, idx) => `问题${idx+1}: ${log.question}\n回答: ${log.answer}`).join("\n\n");
+        const systemPrompt = `你是元认知能力评估专家。根据初一学生对三个元认知问题的回答，分别评估其"计划能力"、"监控能力"、"评估调节能力"，每项0-10分。请只返回JSON格式：{"plan": 分数, "monitor": 分数, "evaluate": 分数, "comment": "简要评语(20字以内)"}。不要有其他文字。`;
+        const userContent = `任务类型: ${task.type}\n学生的回答:\n${answers}`;
+        try {
+            const response = await callDeepSeek([
+                { role: "system", content: systemPrompt },
+                { role: "user", content: userContent }
+            ], 0.5);
+            if (response) {
+                const jsonMatch = response.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    const result = JSON.parse(jsonMatch[0]);
+                    if (typeof result.plan === 'number' && typeof result.monitor === 'number' && typeof result.evaluate === 'number') {
+                        return result;
+                    }
+                }
+            }
+        } catch (e) { console.error("评判解析失败", e); }
+        // 兜底：基于关键词简单评分
+        let planScore = 0, monitorScore = 0, evalScore = 0;
+        for (let idx = 0; idx < qaLogs.length; idx++) {
+            const text = qaLogs[idx].answer.toLowerCase();
+            if (idx === 0 && /计划|打算|先做|第一步|策略/.test(text)) planScore = 8;
+            else if (idx === 0) planScore = 4;
+            if (idx === 1 && /卡住|犹豫|检查|换方法|回头/.test(text)) monitorScore = 8;
+            else if (idx === 1) monitorScore = 4;
+            if (idx === 2 && /检验|评估|改进|下次|调整/.test(text)) evalScore = 8;
+            else if (idx === 2) evalScore = 4;
+        }
+        return { plan: planScore, monitor: monitorScore, evaluate: evalScore, comment: "基于关键词初步评估" };
+    }
+    
+    async function saveCompletedTaskWithEval(record, task, answer, qaLogs, roundId) {
+        // 调用 AI 评判
+        const aiScore = await evaluateAnswersWithDeepSeek(task, qaLogs);
+        const taskRecord = {
+            taskId: task.id,
+            taskType: task.type,
+            taskDescription: task.description,
+            correctAnswer: task.correctAnswer,
+            thinkingProcess: task.thinkingProcess,
+            studentAnswer: answer,
+            qaInteractions: qaLogs,
+            completedAt: new Date().toISOString(),
+            roundId: roundId,
+            aiEvaluation: aiScore || { plan: 0, monitor: 0, evaluate: 0, comment: "评判失败" }
+        };
+        record.tasksCompleted.push(taskRecord);
+        const nextTask = getRandomTask();
+        record.currentTaskId = nextTask.id;
+        record.currentRoundId = (record.currentRoundId || 1) + 1;
+        saveAllData();
+        return nextTask;
+    }
+    
+    function addMessageToUI(sender, text, extraClass = "") {
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message", sender === "coach" ? "coach" : "user");
+        const bubble = document.createElement("div");
+        bubble.classList.add("bubble");
+        if (extraClass === "task-card") bubble.style.background = "#fff7e8";
+        if (extraClass === "answer-card") bubble.style.background = "#e8f3e8";
+        let formatted = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+        bubble.innerHTML = formatted;
+        messageDiv.appendChild(bubble);
+        const small = document.createElement("small");
+        small.innerText = sender === "coach" ? "🧠 小思教练" : "🙋 我";
+        messageDiv.appendChild(small);
+        chatArea.appendChild(messageDiv);
+        chatArea.scrollTop = chatArea.scrollHeight;
+        conversationHistory.push({ sender, text, timestamp: Date.now() });
+        if (conversationHistory.length > 60) conversationHistory.shift();
+    }
+    function coachSay(text, extraClass = "") { addMessageToUI("coach", text, extraClass); }
+    function userSay(text) { addMessageToUI("user", text); }
+    function showThinkingProcess(task) {
+        coachSay(`📘 **思维过程参考**（不是唯一答案，供你对比反思）:\n${task.thinkingProcess}`, "answer-card");
+        coachSay("✨ 对比你自己的思考路径，你有什么新发现？可以试着总结一个改进点。");
+    }
+    
+    async function generateDeepSeekFeedback(question, studentAnswer, task, stepIdx, previousInteractions, fullConversationContext) {
+        const systemPrompt = `你是思维小教练“小思”，专门训练初一学生的元认知监控能力。你的风格是亲切、鼓励、有逻辑。你需要根据学生的回答给出具体反馈，包含：
+1. 对学生回答中体现的元认知能力（计划、监控、评估）给予认可。
+2. 如果缺失某些环节，给予温和建议。
+3. 提供一个可操作的“微行动”建议（一句话）。
+回复要简洁有力，不超过150字。不要直接给出答案，而是引导学生反思。`;
+        let messages = [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `当前任务类型: ${task.type}
+元认知问题(${stepIdx+1}/3): ${question}
+学生回答: ${studentAnswer}
+之前的元认知交互记录: ${JSON.stringify(previousInteractions.slice(-2))}
+请根据以上内容，以教练身份给出反馈。` }
+        ];
+        const recentContext = fullConversationContext.slice(-6);
+        if (recentContext.length > 0) {
+            messages.push({ role: "user", content: `最近的对话上下文：${recentContext.map(m => `${m.sender}:${m.text.substring(0,80)}`).join("; ")}` });
+        }
+        const aiResponse = await callDeepSeek(messages, 0.8);
+        return aiResponse || "你的思考很有价值！继续加油～";
+    }
+    function fullConversationHistory() {
+        return conversationHistory.filter(m => m.sender !== "system");
+    }
+    
+    async function askNextMetacogQuestion() {
+        if (currentStage !== "METACOG_ACTIVE") return;
+        if (metacogStepIndex >= currentMetacogQuestions.length) {
+            const roundId = currentStudentRecord.currentRoundId;
+            // 保存任务并获取AI评判分数
+            coachSay("⏳ 任务已完成，小思正在对你的元认知表现进行智能评判...", "");
+            const nextTask = await saveCompletedTaskWithEval(currentStudentRecord, currentTaskObject, latestTaskAnswer, currentQaLogs, roundId);
+            // 移除加载提示
+            const lastMsg = chatArea.lastChild;
+            if (lastMsg && lastMsg.innerText.includes("小思正在对你的元认知表现进行智能评判")) lastMsg.remove();
+            coachSay("🎉 **元认知复盘完成！** AI已为你本次任务的表现打分（计划/监控/评估），可在管理员面板查看详细评判。");
+            showThinkingProcess(currentTaskObject);
+            coachSay("💪 准备进入下一个挑战，继续锻炼你的元认知肌肉！");
+            currentStage = "TASK_PUBLISHED";
+            latestTaskAnswer = "";
+            metacogStepIndex = 0;
+            currentQaLogs = [];
+            waitingForUserResponse = false;
+            currentTaskObject = nextTask;
+            currentMetacogQuestions = [...currentTaskObject.metacogQuestions];
+            coachSay(`🧠 **新的思维挑战 · ${currentTaskObject.type}**\n\n${currentTaskObject.description}`, "task-card");
+            coachSay("请写出你的解答并点击「任务完成」按钮，我会再次引导你进行元认知提问。");
+            return;
+        }
+        const nextQuestion = currentMetacogQuestions[metacogStepIndex];
+        coachSay(`🔍 **元认知提问 ${metacogStepIndex+1}/${currentMetacogQuestions.length}**\n${nextQuestion}`);
+        waitingForUserResponse = true;
+    }
+    
+    async function handleUserMessage() {
+        if (isProcessing) return;
+        if (!currentStudentId) { coachSay("请先点击「切换学号」设置学号开始训练。"); return; }
+        const text = messageInput.value.trim();
+        if (text === "") return;
+        userSay(text);
+        messageInput.value = "";
+        if (currentStage === "TASK_PUBLISHED") {
+            latestTaskAnswer = text;
+            coachSay("📝 已记录你的解答。确认无误后请点击 **「任务完成」** 按钮，我将开始元认知提问。");
+            isProcessing = false;
+            return;
+        }
+        if (currentStage === "METACOG_ACTIVE" && waitingForUserResponse) {
+            const currentQuestion = currentMetacogQuestions[metacogStepIndex];
+            const previousInteractions = [...currentQaLogs];
+            coachSay("⏳ 小思正在思考...", "");
+            const feedback = await generateDeepSeekFeedback(currentQuestion, text, currentTaskObject, metacogStepIndex, previousInteractions, fullConversationHistory());
+            const lastMsg = chatArea.lastChild;
+            if (lastMsg && lastMsg.innerText.includes("小思正在思考")) lastMsg.remove();
+            coachSay(feedback);
+            currentQaLogs.push({ question: currentQuestion, answer: text, feedback: feedback });
+            metacogStepIndex++;
+            waitingForUserResponse = false;
+            await askNextMetacogQuestion();
+            isProcessing = false;
+            return;
+        }
+        if (currentStage === "METACOG_ACTIVE" && !waitingForUserResponse) {
+            coachSay("⏳ 请稍等，我正在准备下一个元认知问题。");
+        }
+        isProcessing = false;
+    }
+    
+    async function handleTaskComplete() {
+        if (isProcessing) return;
+        if (!currentStudentId) { coachSay("请先设置学号。"); return; }
+        if (currentStage !== "TASK_PUBLISHED") {
+            coachSay("当前不在任务发布阶段，请先完成当前挑战的解答后再尝试。");
+            return;
+        }
+        if (!latestTaskAnswer || latestTaskAnswer.trim() === "") {
+            coachSay("请先在聊天框写出你的解答/计划并发送，我才能开始提问。");
+            return;
+        }
+        currentStage = "METACOG_ACTIVE";
+        metacogStepIndex = 0;
+        waitingForUserResponse = false;
+        currentQaLogs = [];
+        coachSay(`✅ 收到你的成果！\n「${latestTaskAnswer.substring(0, 200)}${latestTaskAnswer.length>200?"…":""}」\n现在让我们一起深入你的思考过程。`);
+        await askNextMetacogQuestion();
+    }
+    
+    function showLoginModal() {
+        const modal = document.createElement("div");
+        modal.className = "modal-overlay";
+        modal.innerHTML = `<div class="modal-card"><h3>🧑‍🎓 学号</h3><input id="studentIdInput" placeholder="例: S230101" style="width:100%; padding:10px; margin:15px 0;"><div><button id="confirmBtn" class="btn">确认</button></div></div>`;
+        document.body.appendChild(modal);
+        const confirmBtn = modal.querySelector("#confirmBtn");
+        const input = modal.querySelector("#studentIdInput");
+        confirmBtn.onclick = () => {
+            const id = input.value.trim();
+            if (!id) return;
+            modal.remove();
+            switchToStudent(id);
+        };
+    }
+    function switchToStudent(studentId) {
+        currentStudentId = studentId;
+        loadAllData();
+        if (!allStudentsData[studentId]) currentStudentRecord = initStudentRecord(studentId);
+        else currentStudentRecord = allStudentsData[studentId];
+        studentIdDisplay.innerText = `学号: ${studentId}`;
+        while (chatArea.firstChild) chatArea.removeChild(chatArea.firstChild);
+        conversationHistory = [];
+        currentStage = "TASK_PUBLISHED";
+        latestTaskAnswer = "";
+        metacogStepIndex = 0;
+        currentQaLogs = [];
+        waitingForUserResponse = false;
+        currentTaskObject = getCurrentTaskByRecord(currentStudentRecord);
+        currentMetacogQuestions = [...currentTaskObject.metacogQuestions];
+        coachSay(`👋 你好 ${studentId}，我是小思。已完成任务数: ${currentStudentRecord.tasksCompleted.length}，第 ${currentStudentRecord.currentRoundId} 个任务即将开始。`, false);
+        coachSay(`🧠 **今日思维挑战 · ${currentTaskObject.type}**\n\n${currentTaskObject.description}`, "task-card");
+        coachSay("请写出你的解答并点击「任务完成」。");
+    }
+    
+    function exportDetail() {
+        const exportData = { exportedAt: new Date().toISOString(), students: allStudentsData };
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: "application/json"});
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `metacog_detail_${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        alert("明细已导出");
+    }
+    function exportAnalysisReport() {
+        const report = [];
+        for (let sid in allStudentsData) {
+            const st = allStudentsData[sid];
+            let totalTasks = st.tasksCompleted.length;
+            let sumPlan = 0, sumMonitor = 0, sumEval = 0;
+            let valid = 0;
+            for (let task of st.tasksCompleted) {
+                if (task.aiEvaluation && typeof task.aiEvaluation.plan === 'number') {
+                    sumPlan += task.aiEvaluation.plan;
+                    sumMonitor += task.aiEvaluation.monitor;
+                    sumEval += task.aiEvaluation.evaluate;
+                    valid++;
+                }
+            }
+            const avgPlan = valid ? (sumPlan/valid).toFixed(1) : 0;
+            const avgMonitor = valid ? (sumMonitor/valid).toFixed(1) : 0;
+            const avgEval = valid ? (sumEval/valid).toFixed(1) : 0;
+            report.push({
+                studentId: sid,
+                totalTasks: totalTasks,
+                avgAIPlanScore: parseFloat(avgPlan),
+                avgAIMonitorScore: parseFloat(avgMonitor),
+                avgAIEvaluateScore: parseFloat(avgEval),
+                summary: `AI评分: 计划${avgPlan}分, 监控${avgMonitor}分, 评估${avgEval}分`
+            });
+        }
+        const fullReport = { generatedAt: new Date().toISOString(), studentReports: report };
+        const blob = new Blob([JSON.stringify(fullReport, null, 2)], {type: "application/json"});
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `metacog_analysis_report_${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        alert("分析报告已导出");
+    }
+    function clearChatDisplay() {
+        while (chatArea.firstChild) chatArea.removeChild(chatArea.firstChild);
+        conversationHistory = [];
+        if (currentStudentId && currentTaskObject) {
+            coachSay(`对话已清空，继续当前任务: ${currentTaskObject.type}`, false);
+            if (currentStage === "TASK_PUBLISHED") coachSay(currentTaskObject.description, "task-card");
+            else if (currentStage === "METACOG_ACTIVE") coachSay("请继续回答元认知问题。");
+        } else if (!currentStudentId) coachSay("请切换学号开始训练。");
+    }
+    
+    const ADMIN_CODE = "20242091004";
+    function showAdminLogin() {
+        const modal = document.createElement("div");
+        modal.className = "modal-overlay";
+        modal.innerHTML = `<div class="modal-card"><h3>🔐 管理员验证</h3><input type="password" id="adminCodeInput" placeholder="管理员学号" style="width:100%; padding:10px; margin:15px 0;"><div><button id="cancelAdminBtn" class="btn-secondary">取消</button><button id="verifyAdminBtn" class="btn">确认</button></div></div>`;
+        document.body.appendChild(modal);
+        const cancel = modal.querySelector("#cancelAdminBtn");
+        const verify = modal.querySelector("#verifyAdminBtn");
+        const input = modal.querySelector("#adminCodeInput");
+        cancel.onclick = () => modal.remove();
+        verify.onclick = () => {
+            if (input.value.trim() === ADMIN_CODE) { modal.remove(); showAdminDashboard(); }
+            else { alert("学号错误"); modal.remove(); }
+        };
+    }
+    function showAdminDashboard() {
+        const studentsList = Object.values(allStudentsData);
+        let tableRows = "";
+        for (let st of studentsList) {
+            let totalTasks = st.tasksCompleted.length;
+            let sumPlan = 0, sumMonitor = 0, sumEval = 0;
+            let valid = 0;
+            for (let task of st.tasksCompleted) {
+                if (task.aiEvaluation && typeof task.aiEvaluation.plan === 'number') {
+                    sumPlan += task.aiEvaluation.plan;
+                    sumMonitor += task.aiEvaluation.monitor;
+                    sumEval += task.aiEvaluation.evaluate;
+                    valid++;
+                }
+            }
+            const avgPlan = valid ? (sumPlan/valid).toFixed(1) : "N/A";
+            const avgMonitor = valid ? (sumMonitor/valid).toFixed(1) : "N/A";
+            const avgEval = valid ? (sumEval/valid).toFixed(1) : "N/A";
+            tableRows += `<tr><td>${st.studentId}</td><td>${st.createdAt.substring(0,10)}</td><td>${totalTasks}</td><td class="ai-score">${avgPlan}</td><td class="ai-score">${avgMonitor}</td><td class="ai-score">${avgEval}</td><td><button class="detail-btn" data-sid="${st.studentId}">查看详细与AI评语</button></td></tr>`;
+        }
+        const modal = document.createElement("div");
+        modal.className = "modal-overlay";
+        modal.innerHTML = `
+            <div class="modal-card" style="max-width:1000px;">
+                <div class="admin-export-buttons">
+                    <button id="adminExportDetailBtn" class="btn">📄 导出明细</button>
+                    <button id="adminExportReportBtn" class="btn-secondary">📊 导出分析报告</button>
+                </div>
+                <h3>📊 学生元认知AI评分汇总 (0-10分)</h3>
+                <table class="student-table">
+                    <thead><tr><th>学号</th><th>注册日期</th><th>完成任务数</th><th>AI计划分</th><th>AI监控分</th><th>AI评估分</th><th>操作</th></tr></thead>
+                    <tbody>${tableRows || "<tr><td colspan='7'>暂无数据</td></tr>"}</tbody>
+                </table>
+                <div class="close-modal"><button id="closeAdminModal" class="btn-secondary">关闭</button></div>
+                <div id="studentDetailArea" style="margin-top:20px;"></div>
+            </div>`;
+        document.body.appendChild(modal);
+        modal.querySelector("#closeAdminModal").onclick = () => modal.remove();
+        modal.querySelector("#adminExportDetailBtn").onclick = () => { exportDetail(); };
+        modal.querySelector("#adminExportReportBtn").onclick = () => { exportAnalysisReport(); };
+        modal.querySelectorAll(".detail-btn").forEach(btn => {
+            btn.onclick = () => {
+                const sid = btn.getAttribute("data-sid");
+                const student = allStudentsData[sid];
+                if (!student) return;
+                let tasksHtml = "<h4>📋 任务记录及AI评判详情</h4><ul>";
+                student.tasksCompleted.forEach((t, idx) => {
+                    const ev = t.aiEvaluation || {};
+                    tasksHtml += `<li><strong>任务${idx+1}: ${t.taskType}</strong> (${t.completedAt.substring(0,16)})<br>
+                    AI评分: 计划${ev.plan||'?'}分, 监控${ev.monitor||'?'}分, 评估${ev.evaluate||'?'}分<br>
+                    评语: ${ev.comment || '无'}<br>
+                    学生答案摘要: ${t.studentAnswer.substring(0,80)}...</li>`;
+                });
+                tasksHtml += "</ul>";
+                modal.querySelector("#studentDetailArea").innerHTML = `<div style="background:#f9f9f9; padding:12px; border-radius:16px;"><strong>${sid} 的详细记录</strong>${tasksHtml}</div>`;
+            };
+        });
+    }
+    
+    sendBtn.addEventListener("click", handleUserMessage);
+    completeTaskBtn.addEventListener("click", handleTaskComplete);
+    switchStudentBtn.addEventListener("click", showLoginModal);
+    clearCurrentChatBtn.addEventListener("click", clearChatDisplay);
+    adminPanelBtn.addEventListener("click", showAdminLogin);
+    messageInput.addEventListener("keypress", (e) => { if(e.key === "Enter") handleUserMessage(); });
+    
+    loadAllData();
+    const lastId = localStorage.getItem("metaCoach_lastStudentId_v8");
+    if (lastId && allStudentsData[lastId]) switchToStudent(lastId);
+    else {
+        studentIdDisplay.innerText = "未登录";
+        // 按照要求修改开场白
+        coachSay("🧑‍🏫 欢迎！我是小思。请点击右上角「切换学号」输入学号开始专属元认知监控训练。", false);
+    }
+    window.addEventListener("beforeunload", () => { if(currentStudentId) localStorage.setItem("metaCoach_lastStudentId_v8", currentStudentId); });
+</script>
+</body>
+</html>
